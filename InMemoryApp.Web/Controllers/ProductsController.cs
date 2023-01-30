@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 
 namespace InMemoryApp.Web.Controllers;
 
@@ -15,26 +16,29 @@ public class ProductsController : Controller
     public IActionResult Index()
     {
         //1.Yol = Key'in memory'de olup olmadığıyla ilgili kontrol. 
-        //if (string.IsNullOrEmpty(_memoryCache.Get<string>("zaman")))
-        //    _memoryCache.Set("zaman", DateTime.Now.ToString());
+        /*if (string.IsNullOrEmpty(_memoryCache.Get<string>("zaman")))
+            _memoryCache.Set("zaman", DateTime.Now.ToString());*/
         
         //2.Yol
         if(!_memoryCache.TryGetValue("zaman", out string zamanCache))
-            _memoryCache.Set("zaman", DateTime.Now.ToString());
+        {
+            MemoryCacheEntryOptions options = new()
+            {
+                AbsoluteExpiration = DateTime.Now.AddMinutes(1),
+                SlidingExpiration = TimeSpan.FromSeconds(10),
+            };
 
-        ViewBag.zaman = zamanCache;
+            _memoryCache.Set("zaman", DateTime.Now.ToString(), options);
+        }
 
         return View();
     }
 
     public IActionResult Show()
     {
-        ViewBag.zaman = _memoryCache.GetOrCreate("zaman", entry =>
-        {
-            return DateTime.Now.ToString();
-        });
+        _memoryCache.TryGetValue("zaman", out string zamanCache);
 
-        _memoryCache.Remove("zaman");
+        ViewBag.zaman = zamanCache;
 
         return View();
     }
