@@ -1,6 +1,7 @@
 ﻿using IDistributedCacheRedisApp.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
+using System.Text;
 using System.Text.Json;
 
 namespace IDistributedCacheRedisApp.Web.Controllers;
@@ -18,8 +19,9 @@ public class ProductsController : Controller
     {
         var product = new Product { Id = 1, Name = "Kalem", Price = 185.00M };
         var productSerialize = JsonSerializer.Serialize(product);
+        var byteProduct = Encoding.UTF8.GetBytes(productSerialize);
 
-        await _distributedCache.SetStringAsync("product:1", productSerialize, new DistributedCacheEntryOptions
+        await _distributedCache.SetAsync("product:1", byteProduct, new DistributedCacheEntryOptions
         {
             AbsoluteExpiration = DateTime.Now.AddMinutes(1)
         });
@@ -29,8 +31,10 @@ public class ProductsController : Controller
 
     public async Task<IActionResult> Show()
     {
-        var product = await _distributedCache.GetStringAsync("product:1");
+        var byteProduct = await _distributedCache.GetAsync("product:1");
+        var product = Encoding.UTF8.GetString(byteProduct);
         ViewBag.product = JsonSerializer.Deserialize<Product>(product);
+
         return View();
     }
 
