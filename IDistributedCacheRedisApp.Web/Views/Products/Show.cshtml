@@ -1,1 +1,5 @@
-﻿<h1>@ViewBag.name</h1>
+﻿@{
+    Product? p = ViewBag.product as Product;
+}
+
+<h1>@p.Id => @p.Name => @p.Price</h1>
