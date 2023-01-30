@@ -43,4 +43,21 @@ public class ProductsController : Controller
         await _distributedCache.RemoveAsync("product:1");
         return View();
     }
+
+    public IActionResult ImageCache()
+    {
+        var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/car.jpg");
+        var imageByte = System.IO.File.ReadAllBytes(path);
+
+        _distributedCache.Set("resim", imageByte);
+
+        return View();
+    }
+
+    public IActionResult ImageUrl()
+    {
+        var resimByte = _distributedCache.Get("resim");
+
+        return File(resimByte, "image/jpg");
+    }
 }
