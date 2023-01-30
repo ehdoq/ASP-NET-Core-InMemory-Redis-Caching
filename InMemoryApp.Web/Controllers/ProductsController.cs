@@ -24,10 +24,15 @@ public class ProductsController : Controller
         {
             MemoryCacheEntryOptions options = new()
             {
-                AbsoluteExpiration = DateTime.Now.AddMinutes(1),
-                SlidingExpiration = TimeSpan.FromSeconds(10),
+                AbsoluteExpiration = DateTime.Now.AddSeconds(10),
+                //SlidingExpiration = TimeSpan.FromSeconds(10),
                 Priority = CacheItemPriority.High
             };
+
+            options.RegisterPostEvictionCallback((key, value, reason, state) =>
+            {
+                _memoryCache.Set("callback", $"key: {key} -> value: {value} -> sebep: {reason} -> {state}");
+            });
 
             _memoryCache.Set("zaman", DateTime.Now.ToString(), options);
         }
@@ -38,8 +43,10 @@ public class ProductsController : Controller
     public IActionResult Show()
     {
         _memoryCache.TryGetValue("zaman", out string zamanCache);
+        _memoryCache.TryGetValue("callback", out string callback);
 
         ViewBag.zaman = zamanCache;
+        ViewBag.callback = callback;
 
         return View();
     }
