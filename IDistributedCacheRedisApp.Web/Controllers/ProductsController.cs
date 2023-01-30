@@ -12,24 +12,24 @@ public class ProductsController : Controller
         _distributedCache = distributedCache;
     }
 
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        _distributedCache.SetString("name", "Mustafa", new DistributedCacheEntryOptions
+        await _distributedCache.SetStringAsync("name", "Mustafa", new DistributedCacheEntryOptions
         {
             AbsoluteExpiration = DateTime.Now.AddMinutes(1)
         });
         return View();
     }
 
-    public IActionResult Show()
+    public async Task<IActionResult> Show()
     {
-        ViewBag.name = _distributedCache?.GetString("name")?.ToString();
+        ViewBag.name = await _distributedCache.GetStringAsync("name");
         return View();
     }
 
-    public IActionResult Remove()
+    public async Task<IActionResult> Remove()
     {
-        _distributedCache?.Remove("name");
+        await _distributedCache.RemoveAsync("name");
         return View();
     }
 }
