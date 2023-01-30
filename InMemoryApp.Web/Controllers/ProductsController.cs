@@ -26,6 +26,7 @@ public class ProductsController : Controller
             {
                 AbsoluteExpiration = DateTime.Now.AddMinutes(1),
                 SlidingExpiration = TimeSpan.FromSeconds(10),
+                Priority = CacheItemPriority.High
             };
 
             _memoryCache.Set("zaman", DateTime.Now.ToString(), options);
